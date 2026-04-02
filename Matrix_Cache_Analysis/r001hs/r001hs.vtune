@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+ <rdmgr>
+  <timestamp type="u64_t">1775136370</timestamp>
+  <hostname>LAPTOP-G1L9IBM2</hostname>
+  <os>windows</os>
+  <product>Intel® VTune™ Profiler 2025.10.0</product>
+  <buildNumber type="s32_t">631693</buildNumber>
+  <logicalCPUCount type="s32_t">18</logicalCPUCount>
+  <physicalCoreCount type="s32_t">14</physicalCoreCount>
+  <processorPackageCount type="s32_t">1</processorPackageCount>
+  <CPUFrequency type="s64_t">2995000000</CPUFrequency>
+  <CPUFamily type="s32_t">6</CPUFamily>
+  <CPUModel type="s32_t">170</CPUModel>
+  <CPUStepping type="s32_t">4</CPUStepping>
+  <CPUBrandName>Intel(R) Core(TM) Ultra 5 125H</CPUBrandName>
+  <isa>avx2</isa>
+  <collectionTimeBegin type="u64_t">1775136370</collectionTimeBegin>
+  <collectionTimeEnd type="u64_t">1775136380</collectionTimeEnd>
+  <variables>
+   <at>hs</at>
+  </variables>
+ </rdmgr>
+</root>

@@ -1,0 +1,56 @@
+
+Sum of N Numbers Benchmark：
+Platform: x86_64
+--- n = 1024 (repeat=100) ---
+Naive (chain)             | n=    1024 | avg_time=0.000001 sec | result=524800.000000
+2-way parallel            | n=    1024 | avg_time=0.000001 sec | result=524800.000000
+4-way parallel            | n=    1024 | avg_time=0.000000 sec | result=524800.000000
+Unrolled (8x)             | n=    1024 | avg_time=0.000000 sec | result=524800.000000
+Pairwise sum              | n=    1024 | avg_time=0.000001 sec | result=524800.000000
+Recursive sum             | n=    1024 | avg_time=0.000002 sec | result=524800.000000
+
+--- n = 4096 (repeat=100) ---
+Naive (chain)             | n=    4096 | avg_time=0.000004 sec | result=8390656.000000
+2-way parallel            | n=    4096 | avg_time=0.000002 sec | result=8390656.000000
+4-way parallel            | n=    4096 | avg_time=0.000001 sec | result=8390656.000000
+Unrolled (8x)             | n=    4096 | avg_time=0.000001 sec | result=8390656.000000
+Pairwise sum              | n=    4096 | avg_time=0.000003 sec | result=8390656.000000
+Recursive sum             | n=    4096 | avg_time=0.000018 sec | result=8390656.000000
+
+--- n = 16384 (repeat=100) ---
+Naive (chain)             | n=   16384 | avg_time=0.000008 sec | result=134225920.000000
+2-way parallel            | n=   16384 | avg_time=0.000004 sec | result=134225920.000000
+4-way parallel            | n=   16384 | avg_time=0.000003 sec | result=134225920.000000
+Unrolled (8x)             | n=   16384 | avg_time=0.000002 sec | result=134225920.000000
+Pairwise sum              | n=   16384 | avg_time=0.000008 sec | result=134225920.000000
+Recursive sum             | n=   16384 | avg_time=0.000031 sec | result=134225920.000000
+
+--- n = 65536 (repeat=10) ---
+Naive (chain)             | n=   65536 | avg_time=0.000031 sec | result=2147516416.000000
+2-way parallel            | n=   65536 | avg_time=0.000015 sec | result=2147516416.000000
+4-way parallel            | n=   65536 | avg_time=0.000010 sec | result=2147516416.000000
+Unrolled (8x)             | n=   65536 | avg_time=0.000008 sec | result=2147516416.000000
+Pairwise sum              | n=   65536 | avg_time=0.000104 sec | result=2147516416.000000
+Recursive sum             | n=   65536 | avg_time=0.000117 sec | result=2147516416.000000
+
+--- n = 262144 (repeat=5) ---
+Naive (chain)             | n=  262144 | avg_time=0.000142 sec | result=34359869440.000000
+2-way parallel            | n=  262144 | avg_time=0.000079 sec | result=34359869440.000000
+4-way parallel            | n=  262144 | avg_time=0.000059 sec | result=34359869440.000000
+Unrolled (8x)             | n=  262144 | avg_time=0.000050 sec | result=34359869440.000000
+Pairwise sum              | n=  262144 | avg_time=0.000847 sec | result=34359869440.000000
+
+--- n = 1048576 (repeat=2) ---
+Naive (chain)             | n= 1048576 | avg_time=0.000670 sec | result=549756338176.000000
+2-way parallel            | n= 1048576 | avg_time=0.000533 sec | result=549756338176.000000
+4-way parallel            | n= 1048576 | avg_time=0.000497 sec | result=549756338176.000000
+Unrolled (8x)             | n= 1048576 | avg_time=0.000386 sec | result=549756338176.000000
+Pairwise sum              | n= 1048576 | avg_time=0.003274 sec | result=549756338176.000000
+
+
+Floating Point Precision Test:
+Naive sum:     100000000000000.560000000000000
+2-way sum:     100000000000000.860000000000000
+Pairwise sum:  81920000000004.016000000000000
+Difference (naive - 2way): -2.968750000000000e-001
+Difference (naive - pairwise): 1.807999999999655e+013
