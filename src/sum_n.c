@@ -1,178 +1,137 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
 
 #ifdef _WIN32
     #include <windows.h>
-    double get_time() {
-        LARGE_INTEGER freq, count;
-        QueryPerformanceFrequency(&freq);
-        QueryPerformanceCounter(&count);
-        return (double)count.QuadPart / (double)freq.QuadPart;
+    double tt() {
+        LARGE_INTEGER f,c;
+        QueryPerformanceFrequency(&f);
+        QueryPerformanceCounter(&c);
+        return (double)c.QuadPart/(double)f.QuadPart;
     }
 #else
     #include <sys/time.h>
-    double get_time() {
-        struct timeval tv;
-        gettimeofday(&tv, NULL);
-        return tv.tv_sec + tv.tv_usec / 1000000.0;
+    double tt() {
+        struct timeval x;
+        gettimeofday(&x,NULL);
+        return x.tv_sec + x.tv_usec/1000000.0;
     }
 #endif
 
-void init_array(double* arr, int n) {
-    for (int i = 0; i < n; i++) {
-        arr[i] = i + 1.0;
-    }
+void init(double* a, int n) {
+    for (int i=0;i<n;++i) a[i]=i+1.0;
 }
 
-double naive_sum(double* arr, int n) {
-    double sum = 0.0;
-    for (int i = 0; i < n; i++) {
-        sum += arr[i];
-    }
-    return sum;
+double M1(double* a, int n) {
+    double s=0;
+    for (int i=0;i<n;++i) s+=a[i];
+    return s;
 }
 
-double two_way_sum(double* arr, int n) {
-    double sum1 = 0.0, sum2 = 0.0;
-    int i = 0;
-    for (; i <= n - 2; i += 2) {
-        sum1 += arr[i];
-        sum2 += arr[i + 1];
-    }
-    for (; i < n; i++) {
-        sum1 += arr[i];
-    }
-    return sum1 + sum2;
+double M2(double* a, int n) {
+    double x=0,y=0;
+    int i=0;
+    for(;i+1<n;i+=2){ x+=a[i]; y+=a[i+1]; }
+    for(;i<n;++i) x+=a[i];
+    return x+y;
 }
 
-double four_way_sum(double* arr, int n) {
-    double sum1 = 0.0, sum2 = 0.0, sum3 = 0.0, sum4 = 0.0;
-    int i = 0;
-    for (; i <= n - 4; i += 4) {
-        sum1 += arr[i];
-        sum2 += arr[i + 1];
-        sum3 += arr[i + 2];
-        sum4 += arr[i + 3];
-    }
-    for (; i < n; i++) {
-        sum1 += arr[i];
-    }
-    return sum1 + sum2 + sum3 + sum4;
+double M3(double* a, int n) {
+    double p=0,q=0,r=0,s=0;
+    int i=0;
+    for(;i+3<n;i+=4){ p+=a[i]; q+=a[i+1]; r+=a[i+2]; s+=a[i+3]; }
+    for(;i<n;++i) p+=a[i];
+    return p+q+r+s;
 }
 
-double unrolled_sum(double* arr, int n) {
-    double sum = 0.0;
-    int i = 0;
-    for (; i <= n - 8; i += 8) {
-        sum += arr[i] + arr[i+1] + arr[i+2] + arr[i+3] +
-               arr[i+4] + arr[i+5] + arr[i+6] + arr[i+7];
+double M4(double* a, int n) {
+    double z=0;
+    int i=0;
+    for(;i+7<n;i+=8){
+        z+=a[i]+a[i+1]+a[i+2]+a[i+3]+a[i+4]+a[i+5]+a[i+6]+a[i+7];
     }
-    for (; i < n; i++) {
-        sum += arr[i];
-    }
-    return sum;
+    for(;i<n;++i) z+=a[i];
+    return z;
 }
 
-double pairwise_sum(double* arr, int n) {
-    double* temp = (double*)malloc(n * sizeof(double));
-    if (!temp) return 0.0;
-    memcpy(temp, arr, n * sizeof(double));
-    int size = n;
-    while (size > 1) {
-        int new_size = size / 2;
-        for (int i = 0; i < new_size; i++) {
-            temp[i] = temp[2 * i] + temp[2 * i + 1];
-        }
-        size = new_size;
+double M5(double* a, int n) {
+    double* b = (double*)malloc(n*8);
+    if(!b)return 0;
+    memcpy(b,a,n*8);
+    int sz=n;
+    while(sz>1){
+        int nsz=sz/2;
+        for(int i=0;i<nsz;++i) b[i]=b[i*2]+b[i*2+1];
+        sz=nsz;
     }
-    double result = temp[0];
-    free(temp);
-    return result;
+    double ans=b[0];
+    free(b);
+    return ans;
 }
 
-double recursive_sum(double* arr, int n) {
-    if (n == 1) return arr[0];
-    if (n == 0) return 0.0;
-    int half = n / 2;
-    double* temp = (double*)malloc(half * sizeof(double));
-    if (!temp) return 0.0;
-    for (int i = 0; i < half; i++) {
-        temp[i] = arr[i] + arr[n - 1 - i];
-    }
-    double result = recursive_sum(temp, half);
-    free(temp);
-    return result;
+double M6(double* a, int n) {
+    if(n==1)return a[0];
+    if(n==0)return 0;
+    int h=n/2;
+    double* t=(double*)malloc(h*8);
+    if(!t)return 0;
+    for(int i=0;i<h;++i) t[i]=a[i]+a[n-1-i];
+    double ans=M6(t,h);
+    free(t);
+    return ans;
 }
 
-void benchmark_sum(const char* name, double (*func)(double*, int), 
-                   double* arr, int n, int repeat) {
-    double start, end;
-    double total_time = 0.0;
-    double result = 0.0;
-    result = func(arr, n);
-    for (int r = 0; r < repeat; r++) {
-        start = get_time();
-        result = func(arr, n);
-        end = get_time();
-        total_time += (end - start);
+void bench(char* name, double (*f)(double*,int), double* a, int n, int rep) {
+    double t0,t1,tot=0,res=0;
+    res=f(a,n);
+    for(int i=0;i<rep;++i){
+        t0=tt();
+        res=f(a,n);
+        t1=tt();
+        tot+=(t1-t0);
     }
-    double avg_time = total_time / repeat;
-    printf("%-25s | n=%8d | avg_time=%.6f sec | result=%f\n", 
-           name, n, avg_time, result);
+    printf("%-25s | n=%8d | avg=%.6f sec | res=%.0f\n", name, n, tot/rep, res);
 }
 
 int main() {
-    int sizes[] = {1024, 4096, 16384, 65536, 262144, 1048576};
-    int num_sizes = sizeof(sizes) / sizeof(sizes[0]);
-    int repeat_base = 100;
-    printf("\nSum of N Numbers Benchmark：\n");
-    #ifdef __aarch64__
-        printf("Platform: ARM64\n");
-    #elif defined(__x86_64__)
-        printf("Platform: x86_64\n");
-    #else
-        printf("Platform: Unknown\n");
+    int sizes[]={1024,4096,16384,65536,262144,1048576};
+    int L=sizeof(sizes)/sizeof(sizes[0]);
+    puts("\nSum Benchmark :");
+    #ifdef __x86_64__
+        puts("x86_64");
+    #elif defined(__aarch64__)
+        puts("ARM64");
     #endif
-    for (int s = 0; s < num_sizes; s++) {
-        int n = sizes[s];
-        double* arr = (double*)malloc(n * sizeof(double));
-        if (!arr) {
-            printf("Memory allocation failed for n=%d\n", n);
-            continue;
-        }
-        init_array(arr, n);
-        int repeat = repeat_base;
-        if (n >= 65536) repeat = 10;
-        if (n >= 262144) repeat = 5;
-        if (n >= 1048576) repeat = 2;
-        printf("--- n = %d (repeat=%d) ---\n", n, repeat);
-        benchmark_sum("Naive (chain)", naive_sum, arr, n, repeat);
-        benchmark_sum("2-way parallel", two_way_sum, arr, n, repeat);
-        benchmark_sum("4-way parallel", four_way_sum, arr, n, repeat);
-        benchmark_sum("Unrolled (8x)", unrolled_sum, arr, n, repeat);
-        benchmark_sum("Pairwise sum", pairwise_sum, arr, n, repeat);
-        if (n <= 65536) {
-            benchmark_sum("Recursive sum", recursive_sum, arr, n, repeat);
-        }
-        printf("\n");
-        free(arr);
+    for(int k=0;k<L;++k){
+        int n=sizes[k];
+        double* a=(double*)malloc(n*8);
+        if(!a){printf("OOM %d\n",n);continue;}
+        init(a,n);
+        int rep=100;
+        if(n>=65536) rep=10;
+        if(n>=262144) rep=5;
+        if(n>=1048576) rep=2;
+        printf("--- n=%d (rep=%d) ---\n", n, rep);
+        bench("Naive", M1, a, n, rep);
+        bench("2-way", M2, a, n, rep);
+        bench("4-way", M3, a, n, rep);
+        bench("Unroll8", M4, a, n, rep);
+        bench("Pairwise", M5, a, n, rep);
+        if(n<=65536) bench("Recursive", M6, a, n, rep);
+        putchar(10);
+        free(a);
     }
-    printf("\nFloating Point Precision Test:\n");
-    int test_n = 10000;
-    double* test_arr = (double*)malloc(test_n * sizeof(double));
-    for (int i = 0; i < test_n; i++) {
-        test_arr[i] = 1e10 + (i % 1000) * 1e-6;
-    }
-    double sum_naive = naive_sum(test_arr, test_n);
-    double sum_2way = two_way_sum(test_arr, test_n);
-    double sum_pairwise = pairwise_sum(test_arr, test_n);
-    printf("Naive sum:     %.15f\n", sum_naive);
-    printf("2-way sum:     %.15f\n", sum_2way);
-    printf("Pairwise sum:  %.15f\n", sum_pairwise);
-    printf("Difference (naive - 2way): %.15e\n", sum_naive - sum_2way);
-    printf("Difference (naive - pairwise): %.15e\n", sum_naive - sum_pairwise);
-    free(test_arr);
+    puts("\nFloat Precision:");
+    int T=10000;
+    double* b=(double*)malloc(T*8);
+    for(int i=0;i<T;++i) b[i]=1e10+(i%1000)*1e-6;
+    double r1=M1(b,T), r2=M2(b,T), r3=M5(b,T);
+    printf("Naive:     %.15f\n", r1);
+    printf("2-way:     %.15f\n", r2);
+    printf("Pairwise:  %.15f\n", r3);
+    printf("Diff1:     %.15e\n", r1-r2);
+    printf("Diff2:     %.15e\n", r1-r3);
+    free(b);
     return 0;
 }
