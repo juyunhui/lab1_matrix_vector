@@ -69,7 +69,10 @@ double M5(double* a, int n) {
     free(b);
     return ans;
 }
-
+/// @brief 
+/// @param a 
+/// @param n 
+/// @return 
 double M6(double* a, int n) {
     if(n==1)return a[0];
     if(n==0)return 0;
@@ -81,7 +84,12 @@ double M6(double* a, int n) {
     free(t);
     return ans;
 }
-
+/// @brief 
+/// @param name 
+/// @param f 
+/// @param a 
+/// @param n 
+/// @param rep 
 void bench(char* name, double (*f)(double*,int), double* a, int n, int rep) {
     double t0,t1,tot=0,res=0;
     res=f(a,n);
@@ -93,7 +101,8 @@ void bench(char* name, double (*f)(double*,int), double* a, int n, int rep) {
     }
     printf("%-25s | n=%8d | avg=%.6f sec | res=%.0f\n", name, n, tot/rep, res);
 }
-
+/// @brief 
+/// @return 
 int main() {
     int sizes[]={1024,4096,16384,65536,262144,1048576};
     int L=sizeof(sizes)/sizeof(sizes[0]);
